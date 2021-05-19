@@ -314,11 +314,6 @@ public class PoolWriter {
             sigbuf.appendName(name);
         }
 
-        @Override
-        protected void classReference(ClassSymbol c) {
-            enterInner(c);
-        }
-
         protected void reset() {
             sigbuf.reset();
         }
