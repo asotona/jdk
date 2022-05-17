@@ -114,24 +114,23 @@ public class JDKPlatformProvider implements PlatformProvider {
     static {
         SUPPORTED_JAVA_PLATFORM_VERSIONS = new TreeSet<>(NUMERICAL_COMPARATOR);
         Path ctSymFile = findCtSym();
-        if (Files.exists(ctSymFile)) {
-            try (FileSystem fs = FileSystems.newFileSystem(ctSymFile, (ClassLoader)null);
-                 DirectoryStream<Path> dir =
-                         Files.newDirectoryStream(fs.getRootDirectories().iterator().next())) {
-                for (Path section : dir) {
-                    if (section.getFileName().toString().contains("-"))
-                        continue;
-                    for (char ver : section.getFileName().toString().toCharArray()) {
-                        String verString = Character.toString(ver);
-                        Target t = Target.lookup("" + Integer.parseInt(verString, Character.MAX_RADIX));
+        try (FileSystem fs = FileSystems.newFileSystem(ctSymFile, (ClassLoader)null);
+             DirectoryStream<Path> dir =
+                     Files.newDirectoryStream(fs.getRootDirectories().iterator().next())) {
+            for (Path section : dir) {
+                if (section.getFileName().toString().contains("-"))
+                    continue;
+                for (char ver : section.getFileName().toString().toCharArray()) {
+                    String verString = Character.toString(ver);
+                    Target t = Target.lookup("" + Integer.parseInt(verString, Character.MAX_RADIX));
 
-                        if (t != null) {
-                            SUPPORTED_JAVA_PLATFORM_VERSIONS.add(targetNumericVersion(t));
-                        }
+                    if (t != null) {
+                        SUPPORTED_JAVA_PLATFORM_VERSIONS.add(targetNumericVersion(t));
                     }
                 }
-            } catch (IOException | ProviderNotFoundException ex) {
             }
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
         }
     }
 
