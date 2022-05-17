@@ -78,6 +78,7 @@
  */
 module jdk.compiler {
     requires transitive java.compiler;
+    requires transitive jdk.zipfs;
 
     exports com.sun.source.doctree;
     exports com.sun.source.tree;
