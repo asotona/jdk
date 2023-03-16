@@ -157,9 +157,8 @@ public final class IncludeLocalesPlugin extends AbstractPlugin implements Resour
                 if (resource != null &&
                     resource.type().equals(ResourcePoolEntry.Type.CLASS_OR_RESOURCE)) {
                     byte[] bytes = resource.contentBytes();
-                    if (newClassReader(path, bytes).interfaces().stream()
-                        .anyMatch(i -> i.asInternalName().contains(METAINFONAME)) &&
-                        stripUnsupportedLocales(bytes)) {
+                    var helper = new ResourceHelper(bytes);
+                    if (helper.findInterface(METAINFONAME) && helper.stripUnsupportedLocales()) {
                         resource = resource.copyWithContent(bytes);
                     }
                 }
@@ -267,46 +266,73 @@ public final class IncludeLocalesPlugin extends AbstractPlugin implements Resour
             .toList();
     }
 
-    private boolean stripUnsupportedLocales(byte[] bytes) {
-        boolean modified = false;
-        // scan CP entries directly to read the bytes of UTF8 entries and
-        // patch in place with unsupported locale tags stripped
-        final int cpLength = (bytes[8] << 8) + (int)bytes[9];
-        int offset = 10;
-        for (int cpSlot=1; cpSlot<cpLength; cpSlot++) {
-            switch (bytes[offset]) { //entry tag
-                case TAG_UTF8 -> {
-                    final int length = (bytes[offset+1] << 8) + (int)bytes[offset+2];
-                    if (bytes[offset + 3] == (byte)' ') { // fast check for leading space
-                        byte[] b = new byte[length];
-                        System.arraycopy(bytes, offset + 3, b, 0, length);
-                        if (filterOutUnsupportedTags(b)) {
-                            // copy back
-                            System.arraycopy(b, 0, bytes, offset + 3, length);
-                            modified = true;
-                        }
+    class ResourceHelper {
+
+        final byte[] data;
+        final int[] cpOffset;
+        final int intOffset;
+
+        public ResourceHelper(byte[] data) {
+            this.data = data;
+            this.cpOffset = new int[readU2(8)];
+            int p = 10;
+            for (int i = 1; i < cpOffset.length; ++i) {
+                cpOffset[i] = p;
+                byte tag = data[p];
+                ++p;
+                switch (tag) {
+                    case TAG_CLASS, TAG_METHODTYPE, TAG_MODULE, TAG_STRING, TAG_PACKAGE -> p += 2;
+                    case TAG_METHODHANDLE -> p += 3;
+                    case TAG_CONSTANTDYNAMIC, TAG_FIELDREF, TAG_FLOAT, TAG_INTEGER,
+                         TAG_INTERFACEMETHODREF, TAG_INVOKEDYNAMIC, TAG_METHODREF,
+                         TAG_NAMEANDTYPE -> p += 4;
+                    case TAG_DOUBLE, TAG_LONG -> {
+                        p += 8;
+                        ++i;
                     }
-                    offset += 3 + length;
+                    case TAG_UTF8 -> p += 2 + readU2(p);
+                    default -> throw new IllegalArgumentException(
+                            "Bad tag (" + tag + ") at index (" + i + ") position (" + p + ")");
                 }
-                case TAG_CLASS,
-                        TAG_STRING,
-                        TAG_METHODTYPE,
-                        TAG_MODULE,
-                        TAG_PACKAGE -> offset += 3;
-                case TAG_METHODHANDLE -> offset += 4;
-                case TAG_INTEGER,
-                        TAG_FLOAT,
-                        TAG_FIELDREF,
-                        TAG_METHODREF,
-                        TAG_INTERFACEMETHODREF,
-                        TAG_NAMEANDTYPE,
-                        TAG_CONSTANTDYNAMIC,
-                        TAG_INVOKEDYNAMIC -> offset += 5;
-                case TAG_LONG,
-                        TAG_DOUBLE -> {offset += 9; cpSlot++;} //additional slot for double and long entries
             }
+            intOffset = p + 6;
         }
-        return modified;
+
+        public boolean findInterface(String interfaceName) {
+            int iLen = readU2(intOffset);
+            byte[] name = interfaceName.getBytes(StandardCharsets.ISO_8859_1);
+            for (int i = 0; i < iLen; i++) {
+                int io = readU2(intOffset + 2 + i << 1);
+                if (data[io = cpOffset[io]] == TAG_CLASS
+                    && data[io = cpOffset[readU2(io + 1)]] == TAG_UTF8
+                    && Arrays.equals(name, 0, name.length,
+                                     data, io + 3, io + 3 + readU2(io + 1))) return true;
+            }
+            return false;
+        }
+
+        public boolean stripUnsupportedLocales() {
+            boolean modified = false;
+            for (int o : cpOffset) {
+                if (o > 0 && data[o] == TAG_UTF8 && data[o + 3] == (byte)' ') {
+                    int length = readU2(o + 1);
+                    byte[] b = new byte[length];
+                    System.arraycopy(data, o + 3, b, 0, length);
+                    if (filterOutUnsupportedTags(b)) {
+                        // copy back
+                        System.arraycopy(b, 0, data, o + 3, length);
+                        modified = true;
+                    }
+                }
+            }
+            return modified;
+        }
+
+        private int readU2(int p) {
+            int b1 = data[p] & 0xFF;
+            int b2 = data[p + 1] & 0xFF;
+            return (b1 << 8) + b2;
+        }
     }
 
     private boolean filterOutUnsupportedTags(byte[] b) {
