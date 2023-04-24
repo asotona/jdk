@@ -84,6 +84,7 @@ JNIEXPORT void JNICALL Java_jdk_internal_org_jline_terminal_impl_jna_osx_CLibrar
     nativelong_j = env->FindClass("jdk/internal/org/jline/terminal/impl/jna/osx/NativeLong");
     CHECK_NULL(nativelong_j);
     nativelong_value = env->GetFieldID(nativelong_j, "value", "J");
+    CHECK_NULL(nativelong_value);
 }
 
 JNIEXPORT void JNICALL Java_jdk_internal_org_jline_terminal_impl_jna_osx_CLibraryImpl_tcgetattr

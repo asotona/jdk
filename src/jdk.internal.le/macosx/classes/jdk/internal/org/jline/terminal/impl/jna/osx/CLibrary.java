@@ -92,6 +92,15 @@ public interface CLibrary {//extends com.sun.jna.Library {
 //            );
 //        }
 
+        {
+            c_iflag  = new NativeLong(0);
+            c_oflag  = new NativeLong(0);
+            c_cflag  = new NativeLong(0);
+            c_lflag  = new NativeLong(0);
+            c_ispeed = new NativeLong(0);
+            c_ospeed = new NativeLong(0);
+        }
+
         public termios() {
         }
 

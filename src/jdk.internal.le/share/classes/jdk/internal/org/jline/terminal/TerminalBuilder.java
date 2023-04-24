@@ -374,6 +374,7 @@ public final class TerminalBuilder {
                 TerminalProvider provider = TerminalProvider.load("jna");
                 providers.add(provider);
             }  catch (Throwable t) {
+t.printStackTrace();
                 Log.debug("Unable to load JNA support: ", t);
                 exception.addSuppressed(t);
             }
@@ -383,6 +384,7 @@ public final class TerminalBuilder {
                 TerminalProvider provider = TerminalProvider.load("jansi");
                 providers.add(provider);
             }  catch (Throwable t) {
+t.printStackTrace();
                 Log.debug("Unable to load JANSI support: ", t);
                 exception.addSuppressed(t);
             }
@@ -393,6 +395,7 @@ public final class TerminalBuilder {
                 TerminalProvider provider = TerminalProvider.load("exec");
                 providers.add(provider);
             }  catch (Throwable t) {
+t.printStackTrace();
                 Log.debug("Unable to load EXEC support: ", t);
                 exception.addSuppressed(t);
             }
@@ -453,6 +456,7 @@ public final class TerminalBuilder {
                             terminal = provider.sysTerminal(name, type, ansiPassThrough, encoding,
                                     nativeSignals, signalHandler, paused, console, inputStreamWrapper);
                         } catch (Throwable t) {
+t.printStackTrace();
                             Log.debug("Error creating " + provider.name() + " based terminal: ", t.getMessage(), t);
                             exception.addSuppressed(t);
                         }
@@ -515,6 +519,7 @@ public final class TerminalBuilder {
                     try {
                         terminal = provider.newTerminal(name, type, inputStreamWrapper.apply(in), out, encoding, signalHandler, paused, attributes, size);
                     } catch (Throwable t) {
+t.printStackTrace();
                         Log.debug("Error creating " + provider.name() + " based terminal: ", t.getMessage(), t);
                         exception.addSuppressed(t);
                     }
@@ -560,6 +565,7 @@ public final class TerminalBuilder {
             Object command = ((Optional<?>) infoMethod.getReturnType().getMethod("command").invoke(info)).orElse(null);
             return (String) command;
         } catch (Throwable t) {
+t.printStackTrace();
             return null;
         }
     }

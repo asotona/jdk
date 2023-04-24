@@ -82,6 +82,7 @@ public class JnaTerminalProvider implements TerminalProvider
                 return isPosixSystemStream(stream);
 //            }
         } catch (Throwable t) {
+t.printStackTrace();
             return false;
         }
     }

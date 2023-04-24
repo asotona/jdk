@@ -83,6 +83,7 @@ public class JnaTerminalProvider implements TerminalProvider
                 return false;
             }
         } catch (Throwable t) {
+t.printStackTrace();
             return false;
         }
     }

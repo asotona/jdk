@@ -36,6 +36,7 @@ public class ExecTerminalProvider implements TerminalProvider
     }
 
     public Pty current(Stream consoleStream) throws IOException {
+System.err.println("using exec terminal!");
         return ExecPty.current(consoleStream);
     }
 
@@ -81,6 +82,7 @@ public class ExecTerminalProvider implements TerminalProvider
         try {
             return isWindowsSystemStream(stream) || isPosixSystemStream(stream);
         } catch (Throwable t) {
+t.printStackTrace();
             return false;
         }
     }
@@ -95,6 +97,7 @@ public class ExecTerminalProvider implements TerminalProvider
                     .inheritIO().start();
             return p.waitFor() == 0;
         } catch (Throwable t) {
+t.printStackTrace();
             // ignore
         }
         return false;
@@ -112,6 +115,7 @@ public class ExecTerminalProvider implements TerminalProvider
                 return result.trim();
             }
         } catch (Throwable t) {
+t.printStackTrace();
             // ignore
         }
         return null;

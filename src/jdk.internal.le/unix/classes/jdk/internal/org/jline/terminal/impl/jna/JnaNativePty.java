@@ -144,6 +144,7 @@ public abstract class JnaNativePty extends AbstractPty implements Pty {
             cns.setAccessible(true);
             return cns.newInstance(fd);
         } catch (Throwable e) {
+e.printStackTrace();
             throw new RuntimeException("Unable to create FileDescriptor", e);
         }
     }
