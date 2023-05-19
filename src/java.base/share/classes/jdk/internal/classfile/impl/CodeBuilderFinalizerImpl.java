@@ -116,12 +116,11 @@ public final class CodeBuilderFinalizerImpl {
         if (topBlock.isEmpty()) {
             throw new IllegalStateException("The body of the try block is empty");
         }
-        if (topBlock.reachable()) {
-            if ((excTable.size() & 1) != 0) excTable.add(topBlock.newBoundLabel());  //try block ends here
+        boolean tryIsOpen = topBlock.reachable();
+        if ((excTable.size() & 1) != 0) excTable.add(topBlock.newBoundLabel());  //try block ends here
+        if (tryIsOpen) {
             finalizerHandler.accept(topBlock); //pass-through finalizer
-            topBlock.goto_(topBlock.endLabel());
-        } else {
-            if ((excTable.size() & 1) != 0) excTable.add(topBlock.newBoundLabel());  //try block ends here
+            if (topBlock.reachable()) topBlock.goto_(endLabel);
         }
         if (!excTable.isEmpty()) {
             var handlerLabel = topBlock.newBoundLabel();
@@ -136,7 +135,8 @@ public final class CodeBuilderFinalizerImpl {
                         .athrow();
             }
         }
-        topBlock.end();
-        parent.labelBinding(endLabel);
+        if (tryIsOpen) {
+            topBlock.labelBinding(endLabel);
+        }
     }
 }
