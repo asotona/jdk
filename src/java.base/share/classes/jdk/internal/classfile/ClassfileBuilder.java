@@ -84,7 +84,7 @@ public sealed interface ClassfileBuilder<E extends ClassfileElement, B extends C
         B builder = (B) this;
         var resolved = transform.resolve(builder);
         resolved.startHandler().run();
-        model.forEachElement(resolved.consumer());
+        model.forEach(resolved.consumer());
         resolved.endHandler().run();
     }
 }

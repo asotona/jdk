@@ -138,6 +138,6 @@ class OptionsTest {
         if (e instanceof AttributedElement ae) ae.attributes().forEach(a ->
                 assertTrue(AttributeMapper.AttributeStability.HAZMAT.ordinal() >= a.attributeMapper().attributeStability().ordinal(),
                            () -> "class " + path + " contains unexpected " + a));
-        if (e instanceof CompoundElement ce) ce.forEachElement(ee -> testNoHazmat(path, (ClassfileElement)ee));
+        if (e instanceof CompoundElement ce) ce.forEach(ee -> testNoHazmat(path, (ClassfileElement)ee));
     }
 }

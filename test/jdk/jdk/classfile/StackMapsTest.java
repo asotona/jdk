@@ -258,7 +258,7 @@ class StackMapsTest {
 //                                                   classModel.superclass().ifPresent(cb::withSuperclass);
 //                                                   cb.withInterfaces(classModel.interfaces());
 //                                                   cb.withVersion(classModel.majorVersion(), classModel.minorVersion());
-                                                   classModel.forEachElement(cb);
+                                                   classModel.forEach(cb);
                                                });
 
         //then verify transformed bytecode

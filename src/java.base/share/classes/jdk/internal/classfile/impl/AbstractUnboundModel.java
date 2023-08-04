@@ -24,9 +24,9 @@
  */
 package jdk.internal.classfile.impl;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import jdk.internal.classfile.Attribute;
 import jdk.internal.classfile.AttributedElement;
@@ -45,18 +45,13 @@ public abstract sealed class AbstractUnboundModel<E extends ClassfileElement>
     }
 
     @Override
-    public void forEachElement(Consumer<E> consumer) {
+    public void forEach(Consumer<? super E> consumer) {
         elements.forEach(consumer);
     }
 
     @Override
-    public Stream<E> elementStream() {
-        return elements.stream();
-    }
-
-    @Override
-    public List<E> elementList() {
-        return elements;
+    public Iterator<E> iterator() {
+        return elements.iterator();
     }
 
     @Override

@@ -90,7 +90,7 @@ class LvtTest {
                         .orElseThrow();
 
         List<LocalVariable> lvs = new ArrayList<>();
-        co.forEachElement(e -> {
+        co.forEach(e -> {
             if (e instanceof LocalVariable l) lvs.add(l);
         });
 
@@ -200,7 +200,7 @@ class LvtTest {
                         .orElseThrow();
 
         List<LocalVariableType> lvts = new ArrayList<>();
-        co.forEachElement(e -> {
+        co.forEach(e -> {
             if (e instanceof LocalVariableType l) lvts.add(l);
         });
 
@@ -306,11 +306,11 @@ class LvtTest {
     void skipDebugSkipsLVT() {
         ClassModel c = Classfile.of(Classfile.DebugElementsOption.DROP_DEBUG).parse(fileBytes);
 
-        c.forEachElement(e -> {
+        c.forEach(e -> {
             if (e instanceof MethodModel m) {
-                m.forEachElement(el -> {
+                m.forEach(el -> {
                     if (el instanceof CodeModel cm) {
-                        cm.forEachElement(elem -> {
+                        cm.forEach(elem -> {
                             assertFalse(elem instanceof LocalVariable);
                             assertFalse(elem instanceof LocalVariableType);
                         });

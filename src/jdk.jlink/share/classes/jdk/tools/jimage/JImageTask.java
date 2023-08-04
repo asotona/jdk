@@ -368,9 +368,9 @@ class JImageTask {
         if (name.endsWith(".class") && !name.endsWith("module-info.class")) {
             try {
                 byte[] bytes = reader.getResource(location);
-                Classfile.of().parse(bytes).forEachElement(cle -> {
-                    if (cle instanceof MethodModel mm) mm.forEachElement(me -> {
-                        if (me instanceof CodeModel com) com.forEachElement(coe -> {
+                Classfile.of().parse(bytes).forEach(cle -> {
+                    if (cle instanceof MethodModel mm) mm.forEach(me -> {
+                        if (me instanceof CodeModel com) com.forEach(coe -> {
                             //do nothing here, just visit each model element
                         });
                     });

@@ -172,7 +172,7 @@ final class FingerPrint {
                 cm.thisClass().asInternalName(),
                 cm.superclass().map(ClassEntry::asInternalName).orElse(null),
                 cm.majorVersion());
-        cm.forEachElement(attrs);
+        cm.forEach(attrs);
         return attrs;
     }
 

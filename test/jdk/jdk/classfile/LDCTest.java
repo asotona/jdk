@@ -77,11 +77,11 @@ class LDCTest {
         });
 
         var model = cc.parse(bytes);
-        var code = model.elementStream()
+        var code = model.elementList().stream()
                 .filter(e -> e instanceof MethodModel)
                 .map(e -> (MethodModel) e)
                 .filter(e -> e.methodName().stringValue().equals("main"))
-                .flatMap(MethodModel::elementStream)
+                .flatMap(e -> e.elementList().stream())
                 .filter(e -> e instanceof CodeModel)
                 .map(e -> (CodeModel) e)
                 .findFirst()

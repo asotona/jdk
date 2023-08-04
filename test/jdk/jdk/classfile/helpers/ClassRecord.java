@@ -97,7 +97,7 @@ public record ClassRecord(
                 cl.interfaces().stream().map(ClassEntry::asInternalName).collect(toSet()),
                 cl.flags().flagsMask(),
                 cl.constantPool(),
-                cl::elementStream, compatibilityFilter);
+                () -> cl.elementList().stream(), compatibilityFilter);
     }
     public static ClassRecord ofStreamingElements(int majorVersion, int minorVersion, String thisClass, String superClass, Set<String> interfaces, int flags, ConstantPool cp, Supplier<Stream<? extends ClassfileElement>> elements, CompatibilityFilter... compatibilityFilter) {
         return new ClassRecord(
@@ -109,10 +109,10 @@ public record ClassRecord(
                 Flags.toString(flags, false),
                 elements.get().filter(e -> e instanceof FieldModel).map(e -> (FieldModel)e).collect(toMap(
                         fm -> fm.fieldName().stringValue() + fm.fieldType().stringValue(),
-                        fm -> FieldRecord.ofStreamingElements(fm.fieldName().stringValue(), fm.fieldType().stringValue(), fm.flags().flagsMask(), fm::elementStream, compatibilityFilter))),
+                        fm -> FieldRecord.ofStreamingElements(fm.fieldName().stringValue(), fm.fieldType().stringValue(), fm.flags().flagsMask(), () -> fm.elementList().stream(), compatibilityFilter))),
                 elements.get().filter(e -> e instanceof MethodModel).map(e -> (MethodModel)e).collect(toMap(
                         mm -> mm.methodName().stringValue() + mm.methodType().stringValue(),
-                        mm -> MethodRecord.ofStreamingElements(mm.methodName().stringValue(), mm.methodType().stringValue(), mm.flags().flagsMask(), mm::elementStream, compatibilityFilter))),
+                        mm -> MethodRecord.ofStreamingElements(mm.methodName().stringValue(), mm.methodType().stringValue(), mm.flags().flagsMask(), () -> mm.elementList().stream(), compatibilityFilter))),
                 AttributesRecord.ofStreamingElements(elements, cp, compatibilityFilter));
     }
 
@@ -247,7 +247,7 @@ public record ClassRecord(
             return new AttributesRecord(
                     mapAttr(attrs, ANNOTATION_DEFAULT, a -> ElementValueRecord.ofElementValue(a.defaultValue())),
                     cp == null ? null : IntStream.range(0, cp.bootstrapMethodCount()).mapToObj(i -> BootstrapMethodRecord.ofBootstrapMethodEntry(cp.bootstrapMethodEntry(i))).collect(toSetOrNull()),
-                    mapAttr(attrs, CODE, a -> CodeRecord.ofStreamingElements(a.maxStack(), a.maxLocals(), a.codeLength(), a::elementStream, a, new CodeNormalizerHelper(a.codeArray()), cf)),
+                    mapAttr(attrs, CODE, a -> CodeRecord.ofStreamingElements(a.maxStack(), a.maxLocals(), a.codeLength(), () -> a.elementList().stream(), a, new CodeNormalizerHelper(a.codeArray()), cf)),
                     mapAttr(attrs, COMPILATION_ID, a -> a.compilationId().stringValue()),
                     mapAttr(attrs, CONSTANT_VALUE, a -> ConstantPoolEntryRecord.ofCPEntry(a.constant())),
                     mapAttr(attrs, DEPRECATED, a -> DefinedValue.DEFINED),
@@ -584,7 +584,7 @@ public record ClassRecord(
                     By_ClassBuilder.isNotDirectlyComparable(cf, a.maxStack()),
                     By_ClassBuilder.isNotDirectlyComparable(cf, a.maxLocals()),
                     By_ClassBuilder.isNotDirectlyComparable(cf, a.codeLength()),
-                    instructions(a::elementStream, codeHelper, a),
+                    instructions(() -> a.elementList().stream(), codeHelper, a),
                     a.exceptionHandlers().stream().map(eh -> ExceptionHandlerRecord.ofExceptionCatch(eh, codeHelper, a)).collect(toSet()),
                     CodeAttributesRecord.ofAttributes(a::attributes, codeHelper, a, cf));
         }

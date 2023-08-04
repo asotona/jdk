@@ -24,14 +24,12 @@
  */
 package jdk.internal.classfile.impl;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import jdk.internal.classfile.ClassBuilder;
 import jdk.internal.classfile.constantpool.ClassEntry;
 import java.lang.reflect.AccessFlag;
 import jdk.internal.classfile.AccessFlags;
@@ -41,11 +39,9 @@ import jdk.internal.classfile.Attributes;
 import jdk.internal.classfile.ClassElement;
 import jdk.internal.classfile.ClassModel;
 import jdk.internal.classfile.ClassReader;
-import jdk.internal.classfile.ClassTransform;
 import jdk.internal.classfile.Classfile;
 import jdk.internal.classfile.ClassfileVersion;
 import jdk.internal.classfile.constantpool.ConstantPool;
-import jdk.internal.classfile.constantpool.ConstantPoolBuilder;
 import jdk.internal.classfile.FieldModel;
 import jdk.internal.classfile.Interfaces;
 import jdk.internal.classfile.MethodModel;
@@ -154,15 +150,11 @@ public final class ClassImpl
     // ClassModel
 
     @Override
-    public void forEachElement(Consumer<ClassElement> consumer) {
+    public void forEach(Consumer<? super ClassElement> consumer) {
         consumer.accept(flags());
         consumer.accept(ClassfileVersion.of(majorVersion(), minorVersion()));
-        superclass().ifPresent(new Consumer<ClassEntry>() {
-            @Override
-            public void accept(ClassEntry entry) {
-                consumer.accept(Superclass.of(entry));
-            }
-        });
+        if (superclass().isPresent())
+            consumer.accept(Superclass.of(superclass().get()));
         consumer.accept(Interfaces.of(interfaces()));
         fields().forEach(consumer);
         methods().forEach(consumer);

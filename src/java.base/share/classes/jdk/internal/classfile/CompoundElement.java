@@ -25,13 +25,11 @@
 package jdk.internal.classfile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import jdk.internal.classfile.impl.AbstractUnboundModel;
 
 /**
  * A {@link ClassfileElement} that has complex structure defined in terms of
@@ -44,21 +42,14 @@ import java.util.stream.StreamSupport;
  */
 public sealed interface CompoundElement<E extends ClassfileElement>
         extends ClassfileElement, Iterable<E>
-        permits ClassModel, CodeModel, FieldModel, MethodModel, jdk.internal.classfile.impl.AbstractUnboundModel {
+        permits ClassModel, CodeModel, FieldModel, MethodModel, AbstractUnboundModel {
     /**
      * Invoke the provided handler with each element contained in this
      * compound element
      * @param consumer the handler
      */
-    void forEachElement(Consumer<E> consumer);
-
-    /**
-     * {@return an {@link Iterable} describing all the elements contained in this
-     * compound element}
-     */
-    default Iterable<E> elements() {
-        return elementList();
-    }
+    @Override
+    void forEach(Consumer<? super E> consumer);
 
     /**
      * {@return an {@link Iterator} describing all the elements contained in this
@@ -66,18 +57,7 @@ public sealed interface CompoundElement<E extends ClassfileElement>
      */
     @Override
     default Iterator<E> iterator() {
-        return elements().iterator();
-    }
-
-    /**
-     * {@return a {@link Stream} containing all the elements contained in this
-     * compound element}
-     */
-    default Stream<E> elementStream() {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                                            iterator(),
-                                            Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED),
-                                    false);
+        return elementList().iterator();
     }
 
     /**
@@ -85,14 +65,14 @@ public sealed interface CompoundElement<E extends ClassfileElement>
      * compound element}
      */
     default List<E> elementList() {
-        List<E> list = new ArrayList<>();
-        forEachElement(new Consumer<>() {
+        var list = new ArrayList<E>();
+        forEach(new Consumer<>() {
             @Override
             public void accept(E e) {
                 list.add(e);
             }
         });
-        return list;
+        return Collections.unmodifiableList(list);
     }
 
 }

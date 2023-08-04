@@ -200,7 +200,7 @@ public final class BufferedMethodBuilder
             builder.withMethod(methodName(), methodType(), methodFlags(), new Consumer<>() {
                 @Override
                 public void accept(MethodBuilder mb) {
-                    forEachElement(mb);
+                    forEach(mb);
                 }
             });
         }

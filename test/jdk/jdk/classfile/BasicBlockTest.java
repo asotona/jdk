@@ -59,7 +59,7 @@ class BasicBlockTest {
         try (InputStream in = BasicBlockTest.class.getResourceAsStream("BasicBlockTest.class")) {
             var cc = Classfile.of();
             var classModel = cc.parse(in.readAllBytes());
-            cc.build(classModel.thisClass().asSymbol(), cb -> classModel.forEachElement(cb));
+            cc.build(classModel.thisClass().asSymbol(), cb -> classModel.forEach(cb));
         }
     }
 }

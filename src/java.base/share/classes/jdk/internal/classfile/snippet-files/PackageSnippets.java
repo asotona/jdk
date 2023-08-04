@@ -110,9 +110,9 @@ class PackageSnippets {
         // @start region="gatherDependencies2"
         ClassModel cm = Classfile.of().parse(bytes);
         Set<ClassDesc> dependencies =
-              cm.elementStream()
-                .flatMap(ce -> ce instanceof MethodModel mm ? mm.elementStream() : Stream.empty())
-                .flatMap(me -> me instanceof CodeModel com ? com.elementStream() : Stream.empty())
+              cm.elementList().stream()
+                .flatMap(ce -> ce instanceof MethodModel mm ? mm.elementList().stream() : Stream.empty())
+                .flatMap(me -> me instanceof CodeModel com ? com.elementList().stream() : Stream.empty())
                 .<ClassDesc>mapMulti((xe, c) -> {
                     switch (xe) {
                         case InvokeInstruction i -> c.accept(i.owner().asSymbol());

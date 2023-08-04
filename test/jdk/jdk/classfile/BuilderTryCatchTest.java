@@ -173,7 +173,7 @@ class BuilderTryCatchTest {
 
         boolean anyGotos = Classfile.of().parse(bytes).methods().stream()
                 .flatMap(mm -> mm.code().stream())
-                .flatMap(CompoundElement::elementStream)
+                .flatMap(e -> e.elementList().stream())
                 .anyMatch(codeElement ->
                         (codeElement instanceof BranchInstruction bi && bi.opcode() == Opcode.GOTO) ||
                                 (codeElement instanceof ExceptionCatch));

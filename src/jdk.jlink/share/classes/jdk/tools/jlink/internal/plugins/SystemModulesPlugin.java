@@ -63,6 +63,8 @@ import java.util.TreeSet;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import jdk.internal.module.Checks;
 import jdk.internal.module.DefaultRoots;
@@ -442,7 +444,7 @@ public final class SystemModulesPlugin extends AbstractPlugin {
         boolean hasModulePackages() throws IOException {
             try (InputStream in = getInputStream()) {
                 // parse module-info.class
-                return Classfile.of().parse(in.readAllBytes()).elementStream()
+                return Classfile.of().parse(in.readAllBytes()).elementList().stream()
                         .anyMatch(e -> e instanceof ModulePackagesAttribute mpa
                                     && !mpa.packages().isEmpty());
             }

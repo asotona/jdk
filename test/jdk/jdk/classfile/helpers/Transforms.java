@@ -220,7 +220,7 @@ public class Transforms {
                         if (me instanceof CodeModel xm) {
                             mb.withCode(xb -> {
                                 xb.nopInstruction();
-                                xm.forEachElement(new Consumer<>() {
+                                xm.forEach(new Consumer<>() {
                                     @Override
                                     public void accept(CodeElement e) {
                                         xb.with(e);
@@ -272,7 +272,7 @@ public class Transforms {
             ClassModel cm = cc.parse(bytes);
             return cc.build(cm.thisClass().asSymbol(),
                                    cb -> {
-                                       cm.forEachElement(cb);
+                                       cm.forEach(cb);
                                        cb.withField("argleBargleWoogaWooga", ConstantDescs.CD_int, b -> { });
                                    });
         }),
@@ -303,7 +303,7 @@ public class Transforms {
             ClassModel cm = cc.parse(bytes);
             return cc.build(cm.thisClass().asSymbol(),
                                    cb -> {
-                                       cm.forEachElement(element -> {
+                                       cm.forEach(element -> {
                                            if (element instanceof MethodModel mm
                                                && mm.methodName().stringValue().equals("hashCode")
                                                && mm.methodType().stringValue().equals("()Z")) {

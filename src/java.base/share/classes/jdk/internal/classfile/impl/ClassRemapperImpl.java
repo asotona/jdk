@@ -96,11 +96,11 @@ public record ClassRemapperImpl(Function<ClassDesc, ClassDesc> mapFunction) impl
             case FieldModel fm ->
                 clb.withField(fm.fieldName().stringValue(), map(
                         fm.fieldTypeSymbol()), fb ->
-                                fm.forEachElement(asFieldTransform().resolve(fb).consumer()));
+                                fm.forEach(asFieldTransform().resolve(fb).consumer()));
             case MethodModel mm ->
                 clb.withMethod(mm.methodName().stringValue(), mapMethodDesc(
                         mm.methodTypeSymbol()), mm.flags().flagsMask(), mb ->
-                                mm.forEachElement(asMethodTransform().resolve(mb).consumer()));
+                                mm.forEach(asMethodTransform().resolve(mb).consumer()));
             case Superclass sc ->
                 clb.withSuperclass(map(sc.superclassEntry().asSymbol()));
             case Interfaces ins ->
