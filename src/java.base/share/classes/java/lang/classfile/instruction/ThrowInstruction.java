@@ -27,6 +27,7 @@ package java.lang.classfile.instruction;
 import java.lang.classfile.CodeElement;
 import java.lang.classfile.CodeModel;
 import java.lang.classfile.Instruction;
+import java.lang.classfile.Opcode;
 import jdk.internal.classfile.impl.AbstractInstruction;
 import jdk.internal.javac.PreviewFeature;
 
@@ -45,6 +46,6 @@ public sealed interface ThrowInstruction extends Instruction
      * {@return a throw instruction}
      */
     static ThrowInstruction of() {
-        return new AbstractInstruction.UnboundThrowInstruction();
+        return (ThrowInstruction)Opcode.ATHROW.asInstruction();
     }
 }

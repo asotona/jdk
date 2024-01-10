@@ -27,6 +27,7 @@ package java.lang.classfile.instruction;
 import java.lang.classfile.CodeElement;
 import java.lang.classfile.CodeModel;
 import java.lang.classfile.Instruction;
+import java.lang.classfile.Opcode;
 import jdk.internal.classfile.impl.AbstractInstruction;
 import jdk.internal.javac.PreviewFeature;
 
@@ -44,6 +45,6 @@ public sealed interface NopInstruction extends Instruction
      * {@return a no-op instruction}
      */
     static NopInstruction of() {
-        return new AbstractInstruction.UnboundNopInstruction();
+        return (NopInstruction)Opcode.NOP.asInstruction();
     }
 }

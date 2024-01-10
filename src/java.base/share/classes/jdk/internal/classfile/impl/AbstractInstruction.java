@@ -64,6 +64,7 @@ import java.lang.classfile.instruction.ThrowInstruction;
 import java.lang.classfile.instruction.TypeCheckInstruction;
 import java.lang.classfile.Label;
 import java.lang.classfile.Opcode;
+import static java.lang.classfile.Opcode.*;
 import java.lang.classfile.TypeKind;
 
 public abstract sealed class AbstractInstruction
@@ -517,7 +518,7 @@ public abstract sealed class AbstractInstruction
         ClassEntry classEntry;
 
         BoundNewObjectInstruction(CodeImpl code, int pos) {
-            super(Opcode.NEW, Opcode.NEW.sizeIfFixed(), code, pos);
+            super(NEW, NEW.sizeIfFixed(), code, pos);
         }
 
         @Override
@@ -682,7 +683,7 @@ public abstract sealed class AbstractInstruction
         @Override
         public LoadableConstantEntry constantEntry() {
             return (LoadableConstantEntry)
-                    code.classReader.entryByIndex(op == Opcode.LDC
+                    code.classReader.entryByIndex(op == LDC
                                                   ? code.classReader.readU1(pos + 1)
                                                   : code.classReader.readU2(pos + 1));
         }
@@ -761,6 +762,10 @@ public abstract sealed class AbstractInstruction
     }
 
     public static abstract sealed class UnboundInstruction extends AbstractInstruction {
+
+        UnboundInstruction(Opcode op, int size) {
+            super(op, size);
+        }
 
         UnboundInstruction(Opcode op) {
             super(op, op.sizeIfFixed());
@@ -847,8 +852,8 @@ public abstract sealed class AbstractInstruction
 
         public UnboundIncrementInstruction(int slot, int constant) {
             super(slot <= 255 && constant < 128 && constant > -127
-                  ? Opcode.IINC
-                  : Opcode.IINC_W);
+                  ? IINC
+                  : IINC_W);
             this.slot = slot;
             this.constant = constant;
         }
@@ -906,7 +911,7 @@ public abstract sealed class AbstractInstruction
         private final List<SwitchCase> cases;
 
         public UnboundLookupSwitchInstruction(Label defaultTarget, List<SwitchCase> cases) {
-            super(Opcode.LOOKUPSWITCH);
+            super(LOOKUPSWITCH);
             this.defaultTarget = defaultTarget;
             this.cases = List.copyOf(cases);
         }
@@ -940,7 +945,7 @@ public abstract sealed class AbstractInstruction
         private final List<SwitchCase> cases;
 
         public UnboundTableSwitchInstruction(int lowValue, int highValue, Label defaultTarget, List<SwitchCase> cases) {
-            super(Opcode.TABLESWITCH);
+            super(TABLESWITCH);
             this.lowValue = lowValue;
             this.highValue = highValue;
             this.defaultTarget = defaultTarget;
@@ -1001,7 +1006,7 @@ public abstract sealed class AbstractInstruction
             extends UnboundInstruction implements ThrowInstruction {
 
         public UnboundThrowInstruction() {
-            super(Opcode.ATHROW);
+            super(ATHROW);
         }
 
         @Override
@@ -1053,19 +1058,19 @@ public abstract sealed class AbstractInstruction
 
         @Override
         public boolean isInterface() {
-            return op == Opcode.INVOKEINTERFACE || methodEntry instanceof InterfaceMethodRefEntry;
+            return op == INVOKEINTERFACE || methodEntry instanceof InterfaceMethodRefEntry;
         }
 
         @Override
         public int count() {
-            return op == Opcode.INVOKEINTERFACE
+            return op == INVOKEINTERFACE
                    ? Util.parameterSlots(Util.methodTypeSymbol(methodEntry.nameAndType())) + 1
                    : 0;
         }
 
         @Override
         public void writeTo(DirectCodeBuilder writer) {
-            if (op == Opcode.INVOKEINTERFACE)
+            if (op == INVOKEINTERFACE)
                 writer.writeInvokeInterface(op, (InterfaceMethodRefEntry) method(), count());
             else
                 writer.writeInvokeNormal(op, method());
@@ -1082,7 +1087,7 @@ public abstract sealed class AbstractInstruction
         final InvokeDynamicEntry indyEntry;
 
         public UnboundInvokeDynamicInstruction(InvokeDynamicEntry indyEntry) {
-            super(Opcode.INVOKEDYNAMIC);
+            super(INVOKEDYNAMIC);
             this.indyEntry = indyEntry;
         }
 
@@ -1107,7 +1112,7 @@ public abstract sealed class AbstractInstruction
         final ClassEntry classEntry;
 
         public UnboundNewObjectInstruction(ClassEntry classEntry) {
-            super(Opcode.NEW);
+            super(NEW);
             this.classEntry = classEntry;
         }
 
@@ -1132,7 +1137,7 @@ public abstract sealed class AbstractInstruction
         final TypeKind typeKind;
 
         public UnboundNewPrimitiveArrayInstruction(TypeKind typeKind) {
-            super(Opcode.NEWARRAY);
+            super(NEWARRAY);
             this.typeKind = typeKind;
         }
 
@@ -1157,7 +1162,7 @@ public abstract sealed class AbstractInstruction
         final ClassEntry componentTypeEntry;
 
         public UnboundNewReferenceArrayInstruction(ClassEntry componentTypeEntry) {
-            super(Opcode.ANEWARRAY);
+            super(ANEWARRAY);
             this.componentTypeEntry = componentTypeEntry;
         }
 
@@ -1184,7 +1189,7 @@ public abstract sealed class AbstractInstruction
 
         public UnboundNewMultidimensionalArrayInstruction(ClassEntry arrayTypeEntry,
                                                           int dimensions) {
-            super(Opcode.MULTIANEWARRAY);
+            super(MULTIANEWARRAY);
             this.arrayTypeEntry = arrayTypeEntry;
             this.dimensions = dimensions;
         }
@@ -1307,7 +1312,7 @@ public abstract sealed class AbstractInstruction
         final ConstantDesc constant;
 
         public UnboundIntrinsicConstantInstruction(Opcode op) {
-            super(op);
+            super(op, 1);
             constant = op.constantValue();
         }
 
@@ -1390,7 +1395,7 @@ public abstract sealed class AbstractInstruction
             extends UnboundInstruction implements NopInstruction {
 
         public UnboundNopInstruction() {
-            super(Opcode.NOP);
+            super(NOP, 1);
         }
 
     }

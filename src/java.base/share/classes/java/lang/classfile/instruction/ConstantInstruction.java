@@ -136,7 +136,7 @@ public sealed interface ConstantInstruction extends Instruction {
         Util.checkKind(op, Opcode.Kind.CONSTANT);
         if (op.constantValue() == null)
             throw new IllegalArgumentException(String.format("Wrong opcode specified; found %s, expected xCONST_val", op));
-        return new AbstractInstruction.UnboundIntrinsicConstantInstruction(op);
+        return (IntrinsicConstantInstruction)op.asInstruction();
     }
 
     /**

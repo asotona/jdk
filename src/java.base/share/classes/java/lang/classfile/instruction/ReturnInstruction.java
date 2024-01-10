@@ -68,6 +68,6 @@ public sealed interface ReturnInstruction extends Instruction
      */
     static ReturnInstruction of(Opcode op) {
         Util.checkKind(op, Opcode.Kind.RETURN);
-        return new AbstractInstruction.UnboundReturnInstruction(op);
+        return (ReturnInstruction)op.asInstruction();
     }
 }

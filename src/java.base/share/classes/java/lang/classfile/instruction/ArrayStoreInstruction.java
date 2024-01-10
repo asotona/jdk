@@ -57,6 +57,6 @@ public sealed interface ArrayStoreInstruction extends Instruction
      */
     static ArrayStoreInstruction of(Opcode op) {
         Util.checkKind(op, Opcode.Kind.ARRAY_STORE);
-        return new AbstractInstruction.UnboundArrayStoreInstruction(op);
+        return (ArrayStoreInstruction)op.asInstruction();
     }
 }

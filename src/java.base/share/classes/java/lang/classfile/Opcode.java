@@ -26,7 +26,9 @@ package java.lang.classfile;
 
 import java.lang.constant.ConstantDesc;
 import java.lang.constant.ConstantDescs;
+import jdk.internal.classfile.impl.AbstractInstruction.*;
 import jdk.internal.javac.PreviewFeature;
+import jdk.internal.vm.annotation.Stable;
 
 /**
  * Describes the opcodes of the JVM instruction set, as described in {@jvms 6.5}.
@@ -1082,6 +1084,7 @@ public enum Opcode {
     private final TypeKind secondaryTypeKind;
     private final int slot;
     private final ConstantDesc constantValue;
+    private @Stable Instruction instruction;
 
     Opcode(int bytecode, int sizeIfFixed, Kind kind) {
         this(bytecode, sizeIfFixed, kind, null, null, -1, null);
@@ -1165,6 +1168,29 @@ public enum Opcode {
      */
     public ConstantDesc constantValue() {
         return constantValue;
+    }
+
+    /**
+     * {@return the single instruction instance if it requires no arguments, or null otherwise}
+     */
+    public Instruction asInstruction() {
+        if (instruction == null && sizeIfFixed == 1) {
+            instruction  = switch (kind) {
+                case ARRAY_LOAD -> new UnboundArrayLoadInstruction(this);
+                case ARRAY_STORE -> new UnboundArrayStoreInstruction(this);
+                case CONSTANT -> new UnboundIntrinsicConstantInstruction(this);
+                case CONVERT -> new UnboundConvertInstruction(this);
+                case LOAD -> new UnboundLoadInstruction(this, slot);
+                case MONITOR -> new UnboundMonitorInstruction(this);
+                case NOP -> new UnboundNopInstruction();
+                case OPERATOR -> new UnboundOperatorInstruction(this);
+                case RETURN -> new UnboundReturnInstruction(this);
+                case STORE -> new UnboundStoreInstruction(this, slot);
+                case THROW_EXCEPTION -> new UnboundThrowInstruction();
+                default -> throw new IllegalArgumentException("should not happen");
+            };
+        }
+        return instruction;
     }
 
     /**

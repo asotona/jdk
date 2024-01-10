@@ -51,6 +51,6 @@ public sealed interface MonitorInstruction extends Instruction
      */
     static MonitorInstruction of(Opcode op) {
         Util.checkKind(op, Opcode.Kind.MONITOR);
-        return new AbstractInstruction.UnboundMonitorInstruction(op);
+        return (MonitorInstruction)op.asInstruction();
     }
 }

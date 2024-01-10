@@ -57,6 +57,6 @@ public sealed interface ArrayLoadInstruction extends Instruction
      */
     static ArrayLoadInstruction of(Opcode op) {
         Util.checkKind(op, Opcode.Kind.ARRAY_LOAD);
-        return new AbstractInstruction.UnboundArrayLoadInstruction(op);
+        return (ArrayLoadInstruction)op.asInstruction();
     }
 }

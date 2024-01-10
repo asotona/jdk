@@ -73,6 +73,6 @@ public sealed interface ConvertInstruction extends Instruction
      */
     static ConvertInstruction of(Opcode op) {
         Util.checkKind(op, Opcode.Kind.CONVERT);
-        return new AbstractInstruction.UnboundConvertInstruction(op);
+        return (ConvertInstruction)op.asInstruction();
     }
 }

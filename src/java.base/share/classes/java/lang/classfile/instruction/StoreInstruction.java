@@ -75,6 +75,6 @@ public sealed interface StoreInstruction extends Instruction
      */
     static StoreInstruction of(Opcode op, int slot) {
         Util.checkKind(op, Opcode.Kind.STORE);
-        return new AbstractInstruction.UnboundStoreInstruction(op, slot);
+        return op.sizeIfFixed() == 1 ? (StoreInstruction)op.asInstruction() : new AbstractInstruction.UnboundStoreInstruction(op, slot);
     }
 }

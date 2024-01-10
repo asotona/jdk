@@ -76,6 +76,6 @@ public sealed interface LoadInstruction extends Instruction
      */
     static LoadInstruction of(Opcode op, int slot) {
         Util.checkKind(op, Opcode.Kind.LOAD);
-        return new AbstractInstruction.UnboundLoadInstruction(op, slot);
+        return op.sizeIfFixed() == 1 ? (LoadInstruction)op.asInstruction() : new AbstractInstruction.UnboundLoadInstruction(op, slot);
     }
 }
