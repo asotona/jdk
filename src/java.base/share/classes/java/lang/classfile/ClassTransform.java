@@ -25,10 +25,13 @@
 package java.lang.classfile;
 
 import java.lang.classfile.attribute.CodeAttribute;
+import java.lang.constant.ClassDesc;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import jdk.internal.classfile.impl.ClassRemapperImpl;
 import jdk.internal.classfile.impl.TransformImpl;
 
 import static java.util.Objects.requireNonNull;
@@ -170,6 +173,42 @@ public non-sealed interface ClassTransform
      */
     static ClassTransform transformingFields(FieldTransform xform) {
         return new TransformImpl.ClassFieldTransform(requireNonNull(xform), _ -> true);
+    }
+
+    /**
+     * Creates a class transform that deeply transforms all class or interface references.
+     * <p>
+     * The transformation is applied to the superclass, interfaces, all kinds of
+     * descriptors and signatures, all attributes referencing classes or interfaces
+     * in any form (including annotations), and all instructions referencing classes
+     * or interfaces. Arrays of reference types are always decomposed to the base
+     * component type for the transformation.
+     * <p>
+     * Primitive types and arrays of primitive types are not transformed.
+     * <p>
+     * The following example renames a class and transforms all its references:
+     *
+     * {@snippet lang=java :
+     * var renameMap = Map.of(ClassDesc.of("Foo"), ClassDesc.of("Bar"));
+     * var cc = ClassFile.of();
+     * byte[] barBytes = cc.transformClass(
+     *         cc.parse(fooBytes),
+     *         ClassDesc.of("Bar"),
+     *         ClassTransform.transformingClassReferences(
+     *                 cd -> renameMap.getOrDefault(cd, cd)));
+     * }
+     *
+     * @param mappingFunction a function that maps class or interface descriptors;
+     *                        it must return a valid class or interface descriptor
+     *                        for every input class or interface descriptor;
+     *                        the function will never receive {@code null}, array
+     *                        descriptors, or primitive type descriptors, and it
+     *                        should never return {@code null}, array descriptors,
+     *                        or primitive type descriptors
+     * @return the class transform
+     */
+    static ClassTransform transformingClassReferences(Function<ClassDesc, ClassDesc> mappingFunction) {
+        return new ClassRemapperImpl(requireNonNull(mappingFunction));
     }
 
     /**
